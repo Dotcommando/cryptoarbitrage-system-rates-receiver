@@ -1,9 +1,13 @@
+const CopyPlugin = require('copy-webpack-plugin');
 const Dotenv = require('dotenv-webpack');
 const path = require('path');
+const nodeExternals = require('webpack-node-externals');
 
-module.exports = env => ({
+module.exports = () => ({
   entry: './src/index.ts',
   devtool: 'source-map',
+  target: 'node',
+  externals: [nodeExternals()],
   module: {
     rules: [
       {
@@ -21,12 +25,13 @@ module.exports = env => ({
     path: path.resolve(__dirname, 'dist'),
   },
   plugins: [
-    new Dotenv({
-      path: './.env',
+    new Dotenv({ path: './.env' }),
+    new CopyPlugin({
+      patterns: [
+        { from: '.env', to: '.' },
+      ],
     }),
   ],
-  optimization: {
-  },
   devServer: {
     static: path.join(__dirname, 'dist'),
     compress: true,
