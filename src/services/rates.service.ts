@@ -10,7 +10,11 @@ export class RatesService {
   private connections = new Map<StockExchanges, any>();
 
   private initBinanceConnection(): Spot {
-    return new Spot(process.env.BINANCE_PUBLIC_KEY, process.env.BINANCE_SECRET_KEY);
+    return new Spot(
+      process.env.BINANCE_PUBLIC_KEY,
+      process.env.BINANCE_SECRET_KEY,
+      { timeout: parseInt(process.env.TIMEOUT) },
+    );
   }
 
   public initConnections(): void {
@@ -19,11 +23,12 @@ export class RatesService {
     }
   }
 
-  public async getRatesFromBinance() {
+  public async getRatesFromBinance(symbols: string[] | string): Promise<unknown> {
     const binanceSpot: Spot = this.connections.get(StockExchanges.Binance);
+    const req: { symbol: string} | { symbols: string[] } = Array.isArray(symbols)
+      ? { symbols }
+      : { symbol: symbols };
 
-    return await binanceSpot
-      .exchangeInfo({ symbol: 'BNBBTC' })
-      .then(res => console.dir(res.data));
+    return await binanceSpot.exchangeInfo(req);
   }
 }
